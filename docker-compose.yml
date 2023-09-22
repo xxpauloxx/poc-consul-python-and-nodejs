@@ -1,0 +1,45 @@
+version: '3'
+services:
+  node-app:
+    build:
+      context: .
+      dockerfile: ./node-app/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - consul
+    environment:
+      - SERVICE_NAME=node-app
+      - SERVICE_PORT=3000
+    networks:
+      - mynetwork
+
+  python-app:
+    build:
+      context: .
+      dockerfile: ./python-app/Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - consul
+    environment:
+      - SERVICE_NAME=python-app
+      - SERVICE_PORT=5000
+    networks:
+      - mynetwork
+
+  consul:
+    build:
+      context: .
+      dockerfile: ./consul/Dockerfile
+    ports:
+      - "8500:8500"
+    volumes:
+      - ./consul/config.json:/consul/config/config.json
+      - ./consul/data:/consul/data
+    command: "agent -config-file=/consul/config/config.json"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
